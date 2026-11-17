@@ -2,7 +2,7 @@
 const tabs=[
  ['agenda','Agenda de shows','Gerencie as datas. Sem eventos, o site exibe a mensagem “EM BREVE NOVAS DATAS E EVENTOS”.'],
  ['biografia','Biografia','Edite o texto mantendo o destaque O RECOMEÇO.'],
- ['galeria','Galeria','Gerencie os caminhos das fotos existentes.'],
+ ['galeria','Galeria','Gerencie fotos WebP e até três vídeos MP4 na mesma galeria.'],
  ['videos','Vídeos e fotos','Atualize os caminhos dos arquivos de mídia, sem alterar o layout.'],
  ['plataformas','Nossa Música','Organize os cartões das plataformas de música.'],
  ['destaque','Vídeo do YouTube','Escolha a miniatura de um link do YouTube ou um vídeo MP4 otimizado.'],
@@ -29,8 +29,21 @@ function render(){
  h='<h2>Próximas apresentações</h2>'+list(data.agenda,(x,i)=>card(`${x.data||'Sem data'} · ${x.cidade||'Sem cidade'}`,field('Data',x.data,`agenda.${i}.data`,'date')+field('Cidade',x.cidade,`agenda.${i}.cidade`)+field('Estado',x.estado,`agenda.${i}.estado`)+field('Evento',x.evento,`agenda.${i}.evento`)+field('Local',x.local,`agenda.${i}.local`),`agenda.${i}`))+add('Adicionar apresentação');
  }else if(active==='biografia'){
  h='<h2>Introdução</h2>'+data.biografia.introducao.map((x,i)=>field(`Parágrafo ${i+1}`,x,`biografia.introducao.${i}`,'textarea')).join('')+field('Trajetória',data.biografia.trajetoria,'biografia.trajetoria','textarea')+'<h2>O RECOMEÇO</h2>'+data.biografia.recomeco.map((x,i)=>field(`Parágrafo ${i+1}`,x,`biografia.recomeco.${i}`,'textarea')).join('');
+
  }else if(active==='galeria'){
- h='<h2>Fotos da galeria</h2><p class="help">Informe o caminho da imagem na pasta assets. Nesta etapa ainda não há envio automático de arquivos.</p>'+list(m.galeria,(x,i)=>card(`Foto ${i+1}`,field('Caminho da imagem',x,`midia.galeria.${i}`)+`<label class='field'><span>Selecionar imagem (converter em WebP)</span><input type='file' accept='image/*' data-image-upload='midia.galeria.${i}'></label>`+(x?`<img class="preview" src="../${esc(x)}" alt="Prévia">`:''),`midia.galeria.${i}`))+add('Adicionar foto');
+ const entries=Array.isArray(m.galeria)?m.galeria:[];
+ const count=entries.filter(x=>x&&typeof x==='object'&&x.tipo==='video').length;
+ h='<h2>Palco & Energia — Fotos e vídeos</h2><p class="help">Fotos são convertidas para WebP. Você pode adicionar até três MP4s já otimizados. Até 3 MB, o painel envia diretamente; arquivos maiores precisam ser incluídos manualmente em assets no GitHub.</p>'
+ +list(entries,(item,i)=>{
+  const isVideo=item&&typeof item==='object'&&item.tipo==='video';
+  const path=isVideo?'midia.galeria.'+i+'.arquivo':'midia.galeria.'+i;
+  const value=isVideo?item.arquivo:item;
+  const uploader=isVideo?'<label class="field"><span>Selecionar MP4 leve (até 3 MB)</span><input type="file" accept="video/mp4,.mp4" data-gallery-video-upload="'+i+'"></label>':'<label class="field"><span>Selecionar foto (converter para WebP)</span><input type="file" accept="image/*" data-image-upload="'+path+'"></label>';
+  const preview=value?(isVideo?'<video class="preview" src="../'+esc(value)+'" controls preload="metadata" playsinline></video>':'<img class="preview" src="../'+esc(value)+'" alt="Prévia">'):'';
+  return card((isVideo?'Vídeo ':'Foto ')+(i+1),field(isVideo?'Caminho do MP4':'Caminho da imagem',value,path)+uploader+preview,'midia.galeria.'+i);
+ })
+ +'<div class="actions"><button class="add" id="add-photo">+ Adicionar foto</button>'
+ +(count<3?'<button class="add" id="add-gallery-video">+ Adicionar MP4 ('+count+'/3)</button>':'<p class="help">Limite de três MP4s atingido. Exclua um para adicionar outro.</p>')+'</div>';
  }else if(active==='videos'){
  h='<h2>Imagens e vídeos</h2>'+[['foto_abertura','Foto de abertura'],['foto_biografia','Foto da biografia'],['foto_presskit','Foto do Press Kit'],['video_fundo','Vídeo de fundo'],['video_youtube','Vídeo de destaque']].map(([key,label])=>field(label,m[key],`midia.${key}`)+(key.startsWith('foto_')?`<label class='field'><span>Converter nova foto para WebP</span><input type='file' accept='image/*' data-image-upload='midia.${key}'></label>`:'')).join('')+'<p class="help">Para substituir arquivos de mídia, eles também precisam ser incluídos na pasta assets na etapa de publicação.</p>';
  }else if(active==='plataformas'){
@@ -59,9 +72,16 @@ document.addEventListener('click',e=>{
  if(!authenticated)return;
  const t=e.target.closest('[data-tab]');if(t){active=t.dataset.tab;render();return}
  const r=e.target.closest('[data-remove]');if(r){remove(r.dataset.remove);return}
+ if(e.target.id==='add-photo'){data.midia.galeria.push('');render();return}
+ if(e.target.id==='add-gallery-video'){
+  const n=data.midia.galeria.filter(x=>x&&typeof x==='object'&&x.tipo==='video').length;
+  if(n>=3){$('#notice').textContent='Limite de três vídeos MP4 na galeria.';return}
+  data.midia.galeria.push({tipo:'video',arquivo:''});render();return
+ }
+
  if(e.target.id==='add'){
  if(active==='agenda')data.agenda.push({data:'',cidade:'',estado:'BA',evento:'',local:''});
- if(active==='galeria')data.midia.galeria.push('');
+ 
  if(active==='plataformas')data.plataformas.push({nome:'',descricao:'',url:'',imagem:'',chamada:'Ouvir agora',ativo:true});
  render();
  }
@@ -88,6 +108,24 @@ document.addEventListener('change',async e=>{
   const file=input.files?.[0];if(!file)return;
   try{const path=await optimizeImage(file);setAt(input.dataset.imageUpload,path);render();$('#notice').textContent='Imagem convertida para WebP e enviada ao GitHub. Clique em Salvar e publicar para atualizar a referência.';}
   catch(err){$('#notice').textContent='Erro: '+err.message;}
+ }
+
+ if(input.matches('[data-gallery-video-upload]')){
+  const file=input.files?.[0];if(!file)return;
+  const idx=Number(input.dataset.galleryVideoUpload);
+  if(!Number.isInteger(idx)||!data.midia.galeria[idx]||data.midia.galeria[idx].tipo!=='video')return;
+  if(!file.name.toLowerCase().endsWith('.mp4')){$('#notice').textContent='Selecione um MP4.';return}
+  if(file.size>3*1024*1024){$('#notice').textContent='Esse MP4 tem mais de 3 MB. Otimize ou envie-o manualmente ao GitHub em assets e informe o caminho no campo.';return}
+  try{
+   $('#notice').textContent='Enviando MP4 ao GitHub…';
+   const name='bf-video-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.mp4';
+   const content=await new Promise((resolve,reject)=>{
+    const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(Error('Falha ao ler o vídeo'));reader.readAsDataURL(file);
+   });
+   const result=await api('/api/upload-video',{name,content,mime:'video/mp4'});
+   data.midia.galeria[idx].arquivo=result.path;render();
+   $('#notice').textContent='Vídeo enviado. Clique em Salvar e publicar no GitHub para mostrar na galeria.';
+  }catch(error){$('#notice').textContent='Falha no MP4: '+error.message}
  }
  if(input.matches('[data-video-upload]')){
   const file=input.files?.[0];if(!file)return;
