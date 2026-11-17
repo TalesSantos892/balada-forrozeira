@@ -57,7 +57,21 @@ function verifyPassword(password){
 }
 function sameOrigin(req){try{const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return !!origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}catch{return false}}
 function validUrl(v){return typeof v==='string'&&(!v||/^https:\/\//i.test(v))&&v.length<2000}
-function validate(d){if(!d||typeof d!=='object'||Array.isArray(d))throw Error('JSON inválido');const fields=['biografia','agenda','plataformas','links','midia'];if(Object.keys(d).some(k=>!fields.includes(k)))throw Error('Campo não permitido');if(!d.biografia||!Array.isArray(d.agenda)||!Array.isArray(d.plataformas)||!d.links||!d.midia)throw Error('Estrutura incompleta');if(d.agenda.length>100||d.plataformas.length>30||d.midia.galeria?.length>100)throw Error('Quantidade acima do limite');if(d.agenda.some(x=>!/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')||!x.cidade))throw Error('Preencha data e cidade de cada show');for(const x of d.plataformas){if(!validUrl(x.url))throw Error('Link de plataforma inválido')}for(const [k,v] of Object.entries(d.links)){if(!validUrl(v))throw Error('Link inválido: '+k)}if(!['arquivo','youtube'].includes(d.midia.youtube_destaque?.tipo))throw Error('Tipo de destaque inválido');if(d.midia.youtube_destaque.tipo==='youtube'&&!validUrl(d.midia.youtube_destaque.url))throw Error('Link YouTube inválido');const size=Buffer.byteLength(JSON.stringify(d));if(size>150000)throw Error('Conteúdo muito grande');return d}
+function validate(d){if(!d||typeof d!=='object'||Array.isArray(d))throw Error('JSON inválido');const fields=['biografia','agenda','plataformas','links','midia'];if(Object.keys(d).some(k=>!fields.includes(k)))throw Error('Campo não permitido');if(!d.biografia||!Array.isArray(d.agenda)||!Array.isArray(d.plataformas)||!d.links||!d.midia)throw Error('Estrutura incompleta');if(d.agenda.length>100||d.plataformas.length>30||d.midia.galeria?.length>100)throw Error('Quantidade acima do limite');
+ if(d.midia.galeria!=null){
+  if(!Array.isArray(d.midia.galeria))throw Error('Galeria inválida');
+  let videos=0;
+  for(const item of d.midia.galeria){
+   if(typeof item==='string'){
+    if(!item.startsWith('assets/')||!/^[-a-zA-Z0-9_.]+$/.test(item.slice(7)))throw Error('Caminho da foto inválido');
+   }else if(item&&typeof item==='object'&&!Array.isArray(item)&&item.tipo==='video'){
+    videos++;
+    if(typeof item.arquivo!=='string'||!item.arquivo.startsWith('assets/')||!/^[-a-zA-Z0-9_.]+[.]mp4$/i.test(item.arquivo.slice(7)))throw Error('Caminho do MP4 inválido');
+   }else throw Error('Tipo de mídia da galeria não permitido');
+  }
+  if(videos>3)throw Error('Máximo de 3 vídeos MP4 na galeria');
+ }
+if(d.agenda.some(x=>!/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')||!x.cidade))throw Error('Preencha data e cidade de cada show');for(const x of d.plataformas){if(!validUrl(x.url))throw Error('Link de plataforma inválido')}for(const [k,v] of Object.entries(d.links)){if(!validUrl(v))throw Error('Link inválido: '+k)}if(!['arquivo','youtube'].includes(d.midia.youtube_destaque?.tipo))throw Error('Tipo de destaque inválido');if(d.midia.youtube_destaque.tipo==='youtube'&&!validUrl(d.midia.youtube_destaque.url))throw Error('Link YouTube inválido');const size=Buffer.byteLength(JSON.stringify(d));if(size>150000)throw Error('Conteúdo muito grande');return d}
 module.exports=async(req,res)=>{try{
 const route=(req.query.route||'').toString();
 if(route==='login'&&req.method==='POST'){
@@ -84,6 +98,17 @@ if(route==='save'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
  const d=validate(req.body?.conteudo),sha=req.body?.sha;if(!/^[a-f0-9]{40}$/.test(sha||''))throw Error('Versão de conteúdo inválida');
  const result=await gh(`/repos/${repo}/contents/conteudo.json`,githubToken,'PUT',{message:'Atualizar conteúdo pelo painel Balada Forrozeira',content:Buffer.from(JSON.stringify(d,null,2)).toString('base64'),sha,branch});return send(res,200,{ok:true,sha:result.content.sha});
+}
+if(route==='upload-video'&&req.method==='POST'){
+ if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
+ const {name,content,mime}=req.body||{};
+ if(mime!=='video/mp4'||typeof name!=='string'||!/^bf-video-[a-z0-9-]+[.]mp4$/.test(name))throw Error('Apenas vídeos MP4 com nome seguro são aceitos');
+ if(typeof content!=='string'||content.length>4.1e6||!/^[A-Za-z0-9+/=]+$/.test(content))throw Error('Vídeo maior que o limite de 3 MB. Otimize o MP4 ou adicione-o manualmente ao GitHub.');
+ const bytes=Buffer.from(content,'base64');
+ if(bytes.length>3*1024*1024||bytes.length<12||bytes.toString('ascii',4,8)!=='ftyp')throw Error('MP4 inválido ou acima do limite de 3 MB');
+ const path='assets/'+name;
+ await gh(`/repos/${repo}/contents/${path}`,githubToken,'PUT',{message:'Adicionar vídeo MP4 otimizado '+name,content,branch});
+ return send(res,200,{ok:true,path});
 }
 if(route==='upload'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
