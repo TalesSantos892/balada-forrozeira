@@ -1,5 +1,5 @@
 const crypto=require('node:crypto');
-const repo=process.env.GITHUB_REPO||'bancodedadoscreativ-hub/balada-forrozeira';
+const repo=process.env.GITHUB_REPO||'';
 const branch=process.env.GITHUB_BRANCH||'main';
 const key=process.env.SESSION_SECRET;
 const adminEmail=(process.env.ADMIN_EMAIL||'').trim().toLowerCase();
@@ -8,6 +8,27 @@ const passwordHash=process.env.ADMIN_PASSWORD_HASH||'';
 const adminPassword=process.env.ADMIN_PASSWORD||'';
 const githubToken=process.env.GITHUB_WRITE_TOKEN;
 const base='/api';
+// Bloqueio básico por instância, sem banco de dados. Rate limit global exige firewall.
+const attempts=new Map();
+const ATTEMPT_WINDOW=10*60*1000;
+const MAX_FAILURES=6;
+function loginKey(req){
+ const forwarded=String(req.headers['x-forwarded-for']||'').split(',')[0].trim();
+ return String(req.headers['x-real-ip']||forwarded||req.socket?.remoteAddress||'unknown').slice(0,128);
+}
+function throttle(req){
+ const ip=loginKey(req),now=Date.now();
+ if(attempts.size>500){for(const [k,v] of attempts)if(v.reset<=now)attempts.delete(k)}
+ const state=attempts.get(ip);
+ return state&&state.reset>now&&state.failures>=MAX_FAILURES?Math.ceil((state.reset-now)/1000):0;
+}
+function failedLogin(req){
+ const ip=loginKey(req),now=Date.now();let state=attempts.get(ip);
+ if(!state||state.reset<=now)state={failures:0,reset:now+ATTEMPT_WINDOW};
+ state.failures++;attempts.set(ip,state);
+}
+function clearLoginAttempts(req){attempts.delete(loginKey(req))}
+
 function cookie(name,val,max=43200){return `${name}=${val}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${max}`}
 function seal(obj){const iv=crypto.randomBytes(12),c=crypto.createCipheriv('aes-256-gcm',crypto.createHash('sha256').update(key).digest(),iv);const b=Buffer.concat([c.update(JSON.stringify(obj)),c.final()]);return Buffer.concat([iv,c.getAuthTag(),b]).toString('base64url')}
 function unseal(s){try{const b=Buffer.from(s,'base64url'),d=crypto.createDecipheriv('aes-256-gcm',crypto.createHash('sha256').update(key).digest(),b.subarray(0,12));d.setAuthTag(b.subarray(12,28));return JSON.parse(Buffer.concat([d.update(b.subarray(28)),d.final()]).toString())}catch{return null}}
@@ -15,7 +36,7 @@ function cookies(req){return Object.fromEntries((req.headers.cookie||'').split('
 function send(res,status,data){res.status(status).setHeader('Cache-Control','no-store').json(data)}
 async function gh(path,token,method='GET',body){const r=await fetch('https://api.github.com'+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'balada-forrozeira-admin',...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(`GitHub ${r.status}: ${j.message||'Falha'}`);return j}
 function verify(req){
- if(!key||!adminEmail||(!passwordHash&&!adminPassword)||!githubToken)throw Error('Configuração de autenticação incompleta');
+ if(!key||!adminEmail||(!passwordHash&&!adminPassword)||!githubToken||!repo)throw Error('Configuração de autenticação incompleta');
  const session=unseal(cookies(req).bf_session||'');
  if(!session||session.exp<Date.now()||session.login!==adminEmail)throw Error('Sessão inválida. Entre novamente.');
  return session;
@@ -34,18 +55,22 @@ function verifyPassword(password){
  const stored=crypto.createHash('sha256').update(adminPassword).digest();
  return crypto.timingSafeEqual(entered,stored);
 }
-function sameOrigin(req){const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}
+function sameOrigin(req){try{const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return !!origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}catch{return false}}
 function validUrl(v){return typeof v==='string'&&(!v||/^https:\/\//i.test(v))&&v.length<2000}
 function validate(d){if(!d||typeof d!=='object'||Array.isArray(d))throw Error('JSON inválido');const fields=['biografia','agenda','plataformas','links','midia'];if(Object.keys(d).some(k=>!fields.includes(k)))throw Error('Campo não permitido');if(!d.biografia||!Array.isArray(d.agenda)||!Array.isArray(d.plataformas)||!d.links||!d.midia)throw Error('Estrutura incompleta');if(d.agenda.length>100||d.plataformas.length>30||d.midia.galeria?.length>100)throw Error('Quantidade acima do limite');if(d.agenda.some(x=>!/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')||!x.cidade))throw Error('Preencha data e cidade de cada show');for(const x of d.plataformas){if(!validUrl(x.url))throw Error('Link de plataforma inválido')}for(const [k,v] of Object.entries(d.links)){if(!validUrl(v))throw Error('Link inválido: '+k)}if(!['arquivo','youtube'].includes(d.midia.youtube_destaque?.tipo))throw Error('Tipo de destaque inválido');if(d.midia.youtube_destaque.tipo==='youtube'&&!validUrl(d.midia.youtube_destaque.url))throw Error('Link YouTube inválido');const size=Buffer.byteLength(JSON.stringify(d));if(size>150000)throw Error('Conteúdo muito grande');return d}
 module.exports=async(req,res)=>{try{
 const route=(req.query.route||'').toString();
 if(route==='login'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
- if(!key||!adminEmail||(!passwordHash&&adminPassword.length<14)||!githubToken)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro. A senha precisa ter pelo menos 14 caracteres.'});
- const email=String(req.body?.email||'').trim().toLowerCase();
+ if(!key||!adminEmail||(!passwordHash&&adminPassword.length<14)||!githubToken||!repo)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro. A senha precisa ter pelo menos 14 caracteres.'});
+ const waiting=throttle(req);
+ if(waiting){res.setHeader('Retry-After',String(waiting));return send(res,429,{erro:'Muitas tentativas. Aguarde alguns minutos e tente novamente.'});}
+ const email=String(req.body?.email||'').trim().toLowerCase().slice(0,254);
  const pass=String(req.body?.password||'');
- const ok=crypto.timingSafeEqual(crypto.createHash('sha256').update(email).digest(),crypto.createHash('sha256').update(adminEmail).digest())&&verifyPassword(pass);
- if(!ok)return send(res,401,{erro:'E-mail ou senha incorretos.'});
+ const equalEmail=crypto.timingSafeEqual(crypto.createHash('sha256').update(email).digest(),crypto.createHash('sha256').update(adminEmail).digest());
+ const equalPass=verifyPassword(pass);
+ if(!(equalEmail&&equalPass)){failedLogin(req);return send(res,401,{erro:'E-mail ou senha incorretos.'});}
+ clearLoginAttempts(req);
  res.setHeader('Set-Cookie',cookie('bf_session',seal({login:adminEmail,exp:Date.now()+8*3600000}),28800));
  return send(res,200,{ok:true});
 }
