@@ -1,0 +1,104 @@
+/* V26: ajustes de leitura e composição para telas menores; desktop preservado */
+html{scroll-padding-top:78px}
+@media(max-width:900px){
+.hero{background:radial-gradient(ellipse 75% 42% at 50% 43%,#37240c44,transparent 76%),#000!important}
+.hero-inner{display:flex!important;align-items:center!important;justify-content:center!important;height:auto!important;min-height:clamp(540px,calc(100svh - 76px),780px)!important;max-height:none!important}
+.hero-person{display:none!important;animation:none!important}
+.hero-accent{left:50%;top:50%;right:auto;transform:translate(-50%,-50%);max-width:90vw;opacity:.45;pointer-events:none}
+.hero-copy{width:100%!important;max-width:610px!important;margin:0 auto!important;padding:68px 0 105px!important;text-align:center;position:relative;z-index:5}
+.hero-copy .micro{font-size:clamp(11px,1.7vw,14px);letter-spacing:clamp(2px,.6vw,4px)}
+.hero-logo{display:block!important;width:min(100%,510px)!important;max-width:100%!important;max-height:none!important;height:auto!important;margin:25px auto 24px!important;object-fit:contain}
+.hero-sub{font-size:clamp(13px,1.9vw,16px)!important;max-width:440px!important;line-height:1.7!important;margin:0 auto 25px!important}
+.hero-copy .actions{max-width:none!important;justify-content:center;gap:12px}
+.hero-copy .button{font-size:12px!important;min-height:48px!important;padding:0 19px!important}
+.bf-youtube-layout{grid-template-columns:minmax(0,1fr)!important}
+.bf-youtube-visual{border-right:0!important;border-bottom:7px solid #ffcb24!important;height:clamp(420px,75vw,600px)!important;min-height:0!important}
+.bf-youtube-copy{min-width:0;padding:45px 5% 50px!important}
+.bf-youtube-heading{font-size:clamp(53px,8vw,78px)!important}
+.bf-youtube-link{max-width:100%;min-width:0;gap:12px}
+.bf-youtube-word{font-size:clamp(38px,7vw,64px)!important;letter-spacing:-2px!important}
+.bf-arrows{font-size:clamp(18px,3vw,27px)!important;letter-spacing:-8px!important;padding-right:0!important}
+.bf-youtube-link svg{width:clamp(55px,8vw,75px)!important}
+.booking .bf-booking-reference{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:30px!important;max-width:700px!important;padding:55px 5% 60px!important;margin:0 auto!important}
+.bf-booking-left,.bf-booking-right{min-width:0!important;padding:0!important}
+.booking .bf-booking-left .heading{font-size:clamp(58px,10vw,86px)!important;line-height:.9!important;max-width:100%!important;overflow-wrap:normal}
+.bf-booking-right h3{white-space:normal!important;font-size:clamp(31px,5.2vw,50px)!important;line-height:1!important}
+.bf-booking-whatsapp{min-height:78px!important;max-width:100%!important;font-size:clamp(20px,3.3vw,27px)!important;line-height:1.2!important;padding:20px!important}
+.press .press-inner{min-width:0;max-width:720px!important}
+.press .press-copy,.press .press-brand{min-width:0}
+.footer{flex-wrap:wrap;line-height:1.8}
+}
+@media(max-width:700px){
+.wrap{padding-left:clamp(20px,5.5vw,34px)!important;padding-right:clamp(20px,5.5vw,34px)!important}
+.hero-inner{min-height:clamp(530px,calc(100svh - 66px),760px)!important}
+.hero-copy{padding:clamp(44px,9svh,78px) 0 clamp(80px,12svh,118px)!important}
+.hero-logo{width:min(100%,410px)!important;margin:24px auto 18px!important}
+.hero-sub{font-size:14px!important;max-width:340px!important;line-height:1.65!important;margin-bottom:25px!important}
+.hero-copy .actions{max-width:100%!important;gap:11px!important}
+.hero-copy .button{min-height:46px!important;padding:0 14px!important;font-size:11px!important}
+.section{padding:64px 0}
+.section .heading{font-size:clamp(48px,11.7vw,69px);line-height:1!important;overflow-wrap:normal}
+.section-intro{line-height:1.7}
+#biografia .bio-intro-v18{padding:60px clamp(20px,5.5vw,34px) 0!important}
+#biografia .bio-intro-v18 .bio-copy{padding:0 0 16px!important;min-width:0}
+#biografia .bio-intro-v18 .bio-copy .heading{font-size:clamp(46px,11vw,69px)!important;line-height:1!important;margin:10px 0 24px!important;white-space:normal!important}
+#biografia .bio-intro-v18 .bio-copy p{font-size:clamp(14px,3.65vw,16px)!important;line-height:1.7!important;margin-bottom:17px!important}
+#biografia .bio-intro-v18 .bio-visual{height:clamp(400px,112vw,560px)!important;min-height:0!important;overflow:hidden!important;margin-top:12px}
+#biografia .bio-intro-v18 .bio-visual img{height:clamp(570px,155vw,805px)!important;width:auto!important;max-width:none!important;top:4px!important}
+.bio-story-v18{padding:65px 0}
+.bio-story-inner-v18{gap:28px!important;grid-template-columns:minmax(0,1fr)!important}
+.bio-history-v18{padding-bottom:24px!important}
+.bio-story-v18 h3{font-size:clamp(37px,9.5vw,55px)!important;line-height:1.04!important;overflow-wrap:break-word}
+.bio-story-v18 h4{font-size:clamp(23px,6.5vw,34px)!important}
+.bio-story-v18 p{font-size:15px!important;line-height:1.72!important;margin-bottom:19px!important}
+.bio-closing-v18{font-size:clamp(22px,6.3vw,34px)!important}
+.shows-empty{padding:28px 20px!important}
+.show{grid-template-columns:66px minmax(0,1fr)!important;gap:12px!important}
+.show-city{grid-column:2}
+#musicas .music-grid-official{grid-template-columns:minmax(0,390px)!important;gap:18px!important;justify-content:center!important}
+#musicas .album{max-width:390px!important}
+.bf-youtube-visual{height:clamp(345px,112vw,530px)!important;border-bottom-width:6px!important}
+.bf-youtube-copy{padding:43px clamp(20px,5.5vw,34px) 49px!important}
+.bf-youtube-heading{font-size:clamp(47px,11vw,69px)!important;line-height:.98!important;margin:10px 0 27px!important}
+.bf-youtube-link{gap:7px!important}
+.bf-youtube-word{font-size:clamp(30px,8.2vw,48px)!important;letter-spacing:-1.5px!important}
+.bf-arrows{font-size:clamp(13px,3.5vw,20px)!important;letter-spacing:-5px!important;padding:0!important}
+.bf-youtube-link svg{width:clamp(44px,12vw,61px)!important}
+.bf-youtube-invite{font-size:16px!important;margin:26px 0 22px!important}
+.bf-youtube-logo{width:70px!important;margin-right:0!important}
+#galeria .gallery-grid{grid-template-columns:minmax(0,1fr)!important;gap:14px}
+#galeria .gallery-grid img{height:auto!important;aspect-ratio:4/5;object-fit:cover;object-position:50% 42%}
+.social-links{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+.social-link{padding:19px 18px!important;font-size:clamp(22px,6vw,30px)!important;gap:10px;min-width:0}
+.booking .bf-booking-reference{max-width:100%!important;padding:48px clamp(20px,5.5vw,34px) 53px!important;gap:27px!important}
+.booking .bf-booking-left .micro{font-size:10px!important;letter-spacing:2px!important;margin:0 0 18px!important}
+.booking .bf-booking-left .heading{font-size:clamp(47px,12vw,79px)!important;line-height:.92!important;letter-spacing:0!important;margin:0 0 22px!important}
+.booking .bf-booking-left p{font-size:14px!important;line-height:1.65!important}
+.bf-booking-right{gap:19px!important}
+.bf-booking-right h3{font-size:clamp(28px,7.2vw,44px)!important;white-space:normal!important;max-width:100%}
+.bf-booking-whatsapp{min-height:68px!important;padding:16px 11px!important;font-size:clamp(17px,4.5vw,25px)!important;line-height:1.15!important}
+.press .press-inner{padding:46px clamp(20px,5.5vw,34px) 0!important}
+.press .press-brand{width:min(65%,260px)!important;max-width:100%!important;margin-bottom:15px!important}
+.press .press-copy{padding:0 0 15px!important}
+.press .press-copy .heading{font-size:clamp(54px,12vw,74px)!important}
+.press .press-copy .button{min-height:55px!important;padding:0 17px!important;font-size:13px!important;max-width:100%}
+.press .press-photo{height:clamp(375px,110vw,535px)!important;overflow:hidden!important}
+.press .press-photo img{height:clamp(510px,148vw,780px)!important;top:8px!important}
+.footer{padding-top:29px;padding-bottom:100px;gap:12px;text-align:center;align-items:center}
+.footer>div{display:flex;justify-content:center;flex-wrap:wrap;gap:9px 16px}
+.footer a{margin:0!important}
+.music-player{right:max(10px,env(safe-area-inset-right))!important;bottom:max(10px,env(safe-area-inset-bottom))!important;width:auto;max-width:calc(100vw - 20px)!important;padding:8px 9px!important;gap:8px!important}
+.music-player .track-info{max-width:min(42vw,185px)}
+.music-player .track-info strong{font-size:11px;overflow:hidden;text-overflow:ellipsis}
+.music-player button{min-width:40px!important;height:40px!important}
+}
+@media(max-width:365px){
+.hero-copy .actions{flex-direction:column;align-items:center;gap:10px!important}
+.hero-copy .button{min-width:min(100%,265px)}
+.booking .bf-booking-left .heading{font-size:clamp(43px,11.9vw,51px)!important}
+.bf-booking-right h3{font-size:clamp(26px,7vw,33px)!important}
+.bf-youtube-link{gap:4px!important}
+.bf-youtube-word{font-size:30px!important}
+.bf-arrows{font-size:12px!important;letter-spacing:-4px!important}
+.bf-youtube-link svg{width:43px!important}
+}
