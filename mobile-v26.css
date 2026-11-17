@@ -102,3 +102,27 @@ html{scroll-padding-top:78px}
 .bf-arrows{font-size:12px!important;letter-spacing:-4px!important}
 .bf-youtube-link svg{width:43px!important}
 }
+/* V27 — Galeria sem cortes: respeitar o formato nativo de cada imagem. */
+#galeria .gallery-grid{
+  display:block!important;
+  columns:2;
+  column-gap:20px;
+  width:100%;
+}
+#galeria .gallery-grid img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0 0 20px!important;
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+}
+@media(max-width:700px){
+  #galeria .gallery-grid{columns:1;column-gap:0}
+  #galeria .gallery-grid img{margin-bottom:14px!important}
+}
