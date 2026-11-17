@@ -44,44 +44,32 @@
    }
  }
  const audio=document.getElementById('site-music');// Playlist V20 controlada pelo index.html; não sobrescrever o áudio com dados antigos.
- const gallery=document.querySelector('.gallery-grid');if(gallery&&Array.isArray(m.galeria)){gallery.replaceChildren();m.galeria.forEach((src,i)=>{if(!src)return;const img=document.createElement('img');img.src=src;img.alt='Balada Forrozeira no palco '+(i+1);img.loading='lazy';gallery.append(img)})}
-
- // Teste controlado de incorporação do Reel enviado (sem alterar a lista de fotos).
- if(gallery){
-  const reelId='DfIh-ePBElQ';
-  const reelUrl='https://www.instagram.com/reel/'+reelId+'/';
-  const card=document.createElement('div');
-  card.className='gallery-embed-card';
-  const stage=document.createElement('div');
-  stage.className='gallery-embed-stage';
-  const start=document.createElement('button');
-  start.type='button';
-  start.className='gallery-reel-load';
-  start.textContent='Reproduzir Reel do Instagram';
-  start.setAttribute('aria-label','Carregar Reel da Balada Forrozeira no Instagram');
-  start.addEventListener('click',()=>{
-   start.remove();
-   const frame=document.createElement('iframe');
-   frame.title='Reel da Balada Forrozeira no Instagram';
-   frame.src='https://www.instagram.com/reel/'+reelId+'/embed/';
-   frame.loading='lazy';
-   frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
-   frame.setAttribute('allowfullscreen','');
-   frame.referrerPolicy='strict-origin-when-cross-origin';
-   stage.append(frame);
-  },{once:true});
-  stage.append(start);
-  const footer=document.createElement('div');
-  footer.className='gallery-embed-footer';
-  const label=document.createElement('span');
-  label.textContent='Vídeo da banda · Instagram';
-  const link=document.createElement('a');
-  link.href=reelUrl;link.target='_blank';link.rel='noopener noreferrer';
-  link.textContent='Abrir Reel ↗';
-  footer.append(label,link);
-  card.append(stage,footer);
-  gallery.append(card);
+ const gallery=document.querySelector('.gallery-grid');
+ if(gallery&&Array.isArray(m.galeria)){
+   gallery.replaceChildren();
+   m.galeria.forEach((item,i)=>{
+     if(!item)return;
+     const isVideo=typeof item==='object'&&item.tipo==='video';
+     const src=typeof item==='string'?item:(isVideo?item.arquivo:item.imagem);
+     if(typeof src!=='string'||!/^assets\\/[a-zA-Z0-9_.-]+$/.test(src))return;
+     if(isVideo){
+       if(!/\\.mp4$/i.test(src))return;
+       const video=document.createElement('video');
+       video.src=src;
+       video.controls=true;
+       video.playsInline=true;
+       video.preload='metadata';
+       video.setAttribute('aria-label','Vídeo da Balada Forrozeira no palco '+(i+1));
+       video.className='gallery-video';
+       gallery.append(video);
+     }else{
+       const img=document.createElement('img');
+       img.src=src;img.alt='Balada Forrozeira no palco '+(i+1);img.loading='lazy';
+       gallery.append(img);
+     }
+   });
  }
+
  const shows=document.getElementById('shows-list'),empty=document.getElementById('shows-empty');
  if(shows&&empty&&Array.isArray(data.agenda)){
   shows.replaceChildren();const valid=data.agenda.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')&&String(x.cidade||'').trim()).sort((a,b)=>a.data.localeCompare(b.data));
