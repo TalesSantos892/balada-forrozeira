@@ -51,9 +51,9 @@
      if(!item)return;
      const isVideo=typeof item==='object'&&item.tipo==='video';
      const src=typeof item==='string'?item:(isVideo?item.arquivo:item.imagem);
-     if(typeof src!=='string'||!/^assets\\/[a-zA-Z0-9_.-]+$/.test(src))return;
+     if(typeof src!=='string'||!src.startsWith('assets/')||!/^[a-zA-Z0-9_.-]+$/.test(src.slice(7)))return;
      if(isVideo){
-       if(!/\\.mp4$/i.test(src))return;
+       if(!src.toLowerCase().endsWith('.mp4'))return;
        const video=document.createElement('video');
        video.src=src;
        video.controls=true;
