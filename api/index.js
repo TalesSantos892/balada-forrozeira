@@ -50,7 +50,7 @@ function verifyPassword(password){
   const original=Buffer.from(expected,'hex');
   return original.length===computed.length&&crypto.timingSafeEqual(computed,original);
  }
- if(adminPassword.length<14)return false;
+ if(adminPassword.length<8)return false;
  const entered=crypto.createHash('sha256').update(password).digest();
  const stored=crypto.createHash('sha256').update(adminPassword).digest();
  return crypto.timingSafeEqual(entered,stored);
@@ -62,7 +62,7 @@ module.exports=async(req,res)=>{try{
 const route=(req.query.route||'').toString();
 if(route==='login'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
- if(!key||!adminEmail||(!passwordHash&&adminPassword.length<14)||!githubToken||!repo)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro. A senha precisa ter pelo menos 14 caracteres.'});
+ if(!key||!adminEmail||(!passwordHash&&adminPassword.length<8)||!githubToken||!repo)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro. A senha precisa ter pelo menos 8 caracteres.'});
  const waiting=throttle(req);
  if(waiting){res.setHeader('Retry-After',String(waiting));return send(res,429,{erro:'Muitas tentativas. Aguarde alguns minutos e tente novamente.'});}
  const email=String(req.body?.email||'').trim().toLowerCase().slice(0,254);
