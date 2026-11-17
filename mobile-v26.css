@@ -128,65 +128,22 @@ html{scroll-padding-top:78px}
 }
 
 
-/* V28 — Teste de Reel incorporado na galeria (sem upload de MP4). */
-#galeria .gallery-embed-card{
-  width:min(100%,440px);
-  max-width:100%;
-  margin:0 auto 20px;
-  break-inside:avoid;
-  -webkit-column-break-inside:avoid;
-  background:#121212;
-  border:1px solid #3a3429;
-  border-radius:8px;
-  overflow:hidden;
-}
-#galeria .gallery-embed-stage{
-  width:100%;
-  aspect-ratio:9/16;
-  position:relative;
-  background:linear-gradient(155deg,#261a0f,#080807 55%,#111);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-#galeria .gallery-embed-stage iframe{
-  width:100%;
-  height:100%;
-  display:block;
-  border:0;
-  background:#fff;
-}
-#galeria .gallery-reel-load{
-  border:1px solid #ffcb24;
-  border-radius:6px;
-  background:#ffcb24;
-  color:#16110a;
-  font:800 15px Inter,Arial,sans-serif;
-  padding:14px 18px;
-  cursor:pointer;
-  max-width:calc(100% - 32px);
-}
-#galeria .gallery-reel-load:focus-visible{
-  outline:3px solid #fff;
-  outline-offset:4px;
-}
-#galeria .gallery-embed-footer{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 16px;
-  font:600 13px Inter,Arial,sans-serif;
-  line-height:1.5;
-}
-#galeria .gallery-embed-footer a{
-  color:#ffcb24;
-  white-space:nowrap;
-  text-decoration:underline;
-  text-underline-offset:3px;
+
+/* V29: vídeos próprios na galeria, sem faixas do Instagram. */
+#galeria .gallery-grid .gallery-video{
+ display:block;
+ width:100%;
+ max-width:100%;
+ height:auto;
+ max-height:none;
+ aspect-ratio:auto;
+ object-fit:contain;
+ background:#080807;
+ margin:0 0 20px;
+ break-inside:avoid;
+ -webkit-column-break-inside:avoid;
+ border:1px solid #ffffff20;
 }
 @media(max-width:700px){
-  #galeria .gallery-embed-card{width:100%;max-width:440px}
-  #galeria .gallery-embed-footer{font-size:12px}
+ #galeria .gallery-grid .gallery-video{margin-bottom:14px}
 }
