@@ -71,43 +71,6 @@
  }
 
 
- // Demonstração de vídeo do Google Drive na galeria; não altera as fotos cadastradas.
- if(gallery){
-  const driveId='1C23SMFyvSSl7xDjkj_k2o7k9RGp7vEFS';
-  const driveLink='https://drive.google.com/file/d/'+driveId+'/view';
-  const card=document.createElement('div');
-  card.className='gallery-drive-card';
-  const stage=document.createElement('div');
-  stage.className='gallery-drive-stage';
-  const play=document.createElement('button');
-  play.type='button';
-  play.className='gallery-drive-play';
-  play.textContent='Assistir vídeo';
-  play.setAttribute('aria-label','Carregar vídeo da Balada Forrozeira no Google Drive');
-  play.addEventListener('click',()=>{
-   const frame=document.createElement('iframe');
-   frame.src='https://drive.google.com/file/d/'+driveId+'/preview';
-   frame.title='Vídeo da Balada Forrozeira — Google Drive';
-   frame.loading='lazy';
-   frame.allow='autoplay; fullscreen; picture-in-picture';
-   frame.setAttribute('allowfullscreen','');
-   frame.referrerPolicy='strict-origin-when-cross-origin';
-   stage.replaceChildren(frame);
-  },{once:true});
-  stage.append(play);
-  const footer=document.createElement('div');
-  footer.className='gallery-drive-footer';
-  const label=document.createElement('span');
-  label.textContent='Teste de vídeo · Google Drive';
-  const fallback=document.createElement('a');
-  fallback.href=driveLink;
-  fallback.target='_blank';
-  fallback.rel='noopener noreferrer';
-  fallback.textContent='Abrir no Drive';
-  footer.append(label,fallback);
-  card.append(stage,footer);
-  gallery.append(card);
- }
  const shows=document.getElementById('shows-list'),empty=document.getElementById('shows-empty');
  if(shows&&empty&&Array.isArray(data.agenda)){
   shows.replaceChildren();const valid=data.agenda.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.data||'')&&String(x.cidade||'').trim()).sort((a,b)=>a.data.localeCompare(b.data));
