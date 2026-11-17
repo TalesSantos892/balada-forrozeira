@@ -4,6 +4,8 @@ const branch=process.env.GITHUB_BRANCH||'main';
 const key=process.env.SESSION_SECRET;
 const adminEmail=(process.env.ADMIN_EMAIL||'').trim().toLowerCase();
 const passwordHash=process.env.ADMIN_PASSWORD_HASH||'';
+// Alternativa sem terminal: senha mantida apenas em variável protegida da Vercel.
+const adminPassword=process.env.ADMIN_PASSWORD||'';
 const githubToken=process.env.GITHUB_WRITE_TOKEN;
 const base='/api';
 function cookie(name,val,max=43200){return `${name}=${val}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${max}`}
@@ -13,17 +15,24 @@ function cookies(req){return Object.fromEntries((req.headers.cookie||'').split('
 function send(res,status,data){res.status(status).setHeader('Cache-Control','no-store').json(data)}
 async function gh(path,token,method='GET',body){const r=await fetch('https://api.github.com'+path,{method,headers:{Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'balada-forrozeira-admin',...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(`GitHub ${r.status}: ${j.message||'Falha'}`);return j}
 function verify(req){
- if(!key||!adminEmail||!passwordHash||!githubToken)throw Error('Configuração de autenticação incompleta');
+ if(!key||!adminEmail||(!passwordHash&&!adminPassword)||!githubToken)throw Error('Configuração de autenticação incompleta');
  const session=unseal(cookies(req).bf_session||'');
  if(!session||session.exp<Date.now()||session.login!==adminEmail)throw Error('Sessão inválida. Entre novamente.');
  return session;
 }
 function verifyPassword(password){
- const [algorithm,salt,expected]=passwordHash.split(':');
- if(algorithm!=='scrypt'||!salt||!expected||typeof password!=='string'||password.length>256)return false;
- const computed=crypto.scryptSync(password,Buffer.from(salt,'hex'),64);
- const original=Buffer.from(expected,'hex');
- return original.length===computed.length&&crypto.timingSafeEqual(computed,original);
+ if(typeof password!=='string'||password.length>256)return false;
+ if(passwordHash){
+  const [algorithm,salt,expected]=passwordHash.split(':');
+  if(algorithm!=='scrypt'||!salt||!expected)return false;
+  const computed=crypto.scryptSync(password,Buffer.from(salt,'hex'),64);
+  const original=Buffer.from(expected,'hex');
+  return original.length===computed.length&&crypto.timingSafeEqual(computed,original);
+ }
+ if(adminPassword.length<14)return false;
+ const entered=crypto.createHash('sha256').update(password).digest();
+ const stored=crypto.createHash('sha256').update(adminPassword).digest();
+ return crypto.timingSafeEqual(entered,stored);
 }
 function sameOrigin(req){const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}
 function validUrl(v){return typeof v==='string'&&(!v||/^https:\/\//i.test(v))&&v.length<2000}
@@ -32,7 +41,7 @@ module.exports=async(req,res)=>{try{
 const route=(req.query.route||'').toString();
 if(route==='login'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
- if(!key||!adminEmail||!passwordHash||!githubToken)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro.'});
+ if(!key||!adminEmail||(!passwordHash&&adminPassword.length<14)||!githubToken)return send(res,503,{erro:'Configure as variáveis de ambiente primeiro. A senha precisa ter pelo menos 14 caracteres.'});
  const email=String(req.body?.email||'').trim().toLowerCase();
  const pass=String(req.body?.password||'');
  const ok=crypto.timingSafeEqual(crypto.createHash('sha256').update(email).digest(),crypto.createHash('sha256').update(adminEmail).digest())&&verifyPassword(pass);
