@@ -1,0 +1,21 @@
+BALADA FORROZEIRA V23 — ATUALIZAÇÃO DA V21 ENVIADA
+====================================================
+Esta entrega foi feita SOBRE o ZIP V21 enviado nesta conversa, não sobre a V22.
+
+IMPLEMENTADO
+- Painel 'Nossa Música': adicionar/ocultar/remover plataformas, sem aba de lançamentos.
+- Painel 'Vídeo do YouTube': selecionar miniatura via URL YouTube ou vídeo MP4 local.
+- Site público: miniatura do YouTube no espaço original, com link para assistir.
+- Painel: conversão local de fotos/capas para WebP (1920px, qualidade 0,82).
+- Site público: cartões de música continuam adaptativos; mídias, animações e playlist preservadas.
+
+ATENÇÃO — AINDA NÃO É O PAINEL FINAL
+- O navegador baixa cada WebP convertido; coloque o arquivo na pasta assets/ antes de publicar.
+- O botão de exportação baixa conteudo.json; substitua esse arquivo no projeto.
+- O painel ainda NÃO envia fotos/vídeos nem salva no GitHub automaticamente.
+- O painel ainda NÃO possui login seguro.
+- A conversão de vídeo é manual, como combinado.
+- Para visualizar o painel com os dados, sirva os arquivos via HTTP(S), não file://.
+- Não publique /admin/ para uso real até finalizar autenticação e gravação protegida.
+
+A implementação de login e integração GitHub/Vercel deve ser feita na próxima etapa.

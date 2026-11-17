@@ -1,0 +1,40 @@
+BALADA FORROZEIRA V25 — LOGIN SIMPLES E SEO (BETA)
+==================================================
+BASE: V24. Layout público, músicas e efeitos preservados.
+
+LOGIN: /admin/
+- E-mail + senha administrativa, sem conta GitHub para o artista.
+- GitHub usado somente no servidor para armazenar conteudo.json e imagens WebP.
+- Credenciais NÃO são incluídas neste ZIP. NÃO use senha pessoal do GitHub.
+- O painel usa sessão HttpOnly/Secure e hash scrypt da senha.
+
+CONFIGURAÇÃO VERCEL (Environment Variables):
+ADMIN_EMAIL = e-mail de login do painel
+ADMIN_PASSWORD_HASH = hash gerado por 'node GERAR_HASH_SENHA.js'
+SESSION_SECRET = segredo aleatório de pelo menos 32 caracteres
+GITHUB_WRITE_TOKEN = token fine-grained com acesso SOMENTE ao repositório
+  bancodedadoscreativ-hub/balada-forrozeira, permissão Contents: Read and write
+GITHUB_REPO = bancodedadoscreativ-hub/balada-forrozeira
+GITHUB_BRANCH = main
+
+PUBLICAÇÃO:
+- Vercel deve estar conectada ao MESMO repositório GitHub.
+- Adicionar variáveis no ambiente Production e fazer novo deploy.
+- Não inserir valores secretos no HTML, JavaScript do navegador ou GitHub.
+- Configurar proteção contra tentativas repetidas de login no Vercel Firewall
+  ANTES de usar em produção. Esta beta ainda não implementa rate limiting persistente.
+- Testar autenticação, logout, envio WebP, salvamento e redeploy.
+
+SEO:
+- Título, descrição, dados estruturados MusicGroup, OpenGraph, robots.txt.
+- Origem do projeto: Cruz das Almas (conforme biografia fornecida).
+- Brejões/Serrana NÃO são declaradas sede sem confirmação.
+- Após definir URL pública final, adicionar URL canônica, sitemap.xml
+  com URL real e cadastrar no Google Search Console.
+- SEO não garante posição nem indexação imediata.
+
+ATENÇÃO:
+- BETA não testada em deploy Vercel real.
+- GitHub token é usado SOMENTE na função do servidor.
+- Não distribuir a senha pessoal do GitHub; use senha exclusiva do painel.
+- Antes de liberar a administração, configurar bloqueio de tentativas de login.

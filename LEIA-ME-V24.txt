@@ -1,0 +1,33 @@
+BALADA FORROZEIRA V24 — LOGIN E SALVAMENTO GITHUB (BETA)
+
+REQUISITOS PARA ATIVAR:
+1. Publique o código deste ZIP no repositório bancodedadoscreativ-hub/balada-forrozeira (branch main).
+2. Importe ESSE repositório no Vercel. Upload manual separado no Vercel NÃO cria atualização automática.
+3. Crie um GitHub OAuth App (Settings > Developer settings > OAuth Apps) com callback https://SEU-DOMINIO.vercel.app/api/callback.
+4. Configure as variáveis de ambiente na Vercel:
+   GITHUB_CLIENT_ID = Client ID do OAuth App
+   GITHUB_CLIENT_SECRET = Client Secret do OAuth App
+   SESSION_SECRET = segredo aleatório longo (mínimo 32 caracteres)
+   ADMIN_GITHUB_USERS = login GitHub do(s) administrador(es), separados por vírgula
+   GITHUB_REPO = bancodedadoscreativ-hub/balada-forrozeira
+   GITHUB_BRANCH = main
+5. Reimplante após adicionar as variáveis.
+6. Acesse https://SEU-DOMINIO.vercel.app/admin/ e clique Entrar com GitHub.
+
+FUNCIONALIDADES:
+- Autenticação GitHub OAuth, acesso por lista de usuários autorizados e sessão criptografada HttpOnly.
+- Leitura e gravação de conteudo.json com controle de versão SHA.
+- Conversão local de imagens para WebP e envio ao repositório (máximo 4MB após conversão).
+- Agenda, biografia, fotos, links, plataformas, destaque YouTube.
+- MP4 continua sendo otimizado e enviado manualmente.
+- Site público preservado.
+
+LIMITAÇÕES E ALERTAS:
+- Esta é uma versão beta: não foi testada com OAuth real nem com deploy Vercel.
+- OAuth GitHub requer que o administrador tenha conta GitHub com permissão de escrita no repositório.
+- O escopo OAuth repo é amplo; use uma conta GitHub exclusiva para administrar este projeto, com acesso restrito.
+- O painel não oferece senha compartilhada independente do GitHub.
+- GitHub limita uploads pela API; imagens maiores que 4MB otimizadas são rejeitadas.
+- Se o deploy estiver configurado por upload manual, salvar no GitHub NÃO atualizará o site.
+- Fotos carregadas antes de salvar o JSON podem ficar órfãs no repositório se o usuário desistir.
+- Nunca envie secrets para o repositório nem os coloque no HTML.

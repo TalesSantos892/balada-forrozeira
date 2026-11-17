@@ -1,0 +1,67 @@
+backend:
+  name: github
+  repo: bancodedadoscreativ-hub/balada-forrozeira
+  branch: main
+  # Requer autenticação OAuth GitHub configurada para o domínio de publicação.
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+locale: pt
+publish: false
+collections:
+  - name: "site"
+    label: "Conteúdo do site"
+    files:
+      - name: "conteudo"
+        label: "Informações da banda"
+        file: "conteudo.json"
+        format: "json"
+        fields:
+          - label: "Biografia"
+            name: "biografia"
+            widget: "object"
+            fields:
+              - {label: "Introdução (2 parágrafos)", name: "introducao", widget: "list", field: {label: "Parágrafo", name: "texto", widget: "string"}}
+              - {label: "Trajetória", name: "trajetoria", widget: "text"}
+              - {label: "O Recomeço (parágrafos)", name: "recomeco", widget: "list", field: {label: "Parágrafo", name: "texto", widget: "text"}}
+          - label: "Agenda de shows"
+            name: "agenda"
+            widget: "list"
+            required: false
+            summary: "{{fields.data}} - {{fields.cidade}}"
+            fields:
+              - {label: "Data", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD"}
+              - {label: "Cidade", name: "cidade", widget: "string"}
+              - {label: "Estado", name: "estado", widget: "string", required: false}
+              - {label: "Evento", name: "evento", widget: "string", required: false}
+              - {label: "Local", name: "local", widget: "string", required: false}
+          - label: "Plataformas musicais"
+            name: "plataformas"
+            widget: "list"
+            fields:
+              - {label: "Nome", name: "nome", widget: "string"}
+              - {label: "Descrição", name: "descricao", widget: "text", required: false}
+              - {label: "Link", name: "url", widget: "string"}
+              - {label: "Imagem", name: "imagem", widget: "image", required: false}
+              - {label: "Texto do botão", name: "chamada", widget: "string", required: false}
+              - {label: "Mostrar no site", name: "ativo", widget: "boolean", default: true}
+          - label: "Links oficiais"
+            name: "links"
+            widget: "object"
+            fields:
+              - {label: "Instagram", name: "instagram", widget: "string"}
+              - {label: "TikTok", name: "tiktok", widget: "string"}
+              - {label: "YouTube", name: "youtube", widget: "string"}
+              - {label: "Sua Música", name: "suamusica", widget: "string"}
+              - {label: "WhatsApp", name: "whatsapp", widget: "string"}
+              - {label: "Press Kit", name: "presskit", widget: "string"}
+          - label: "Fotos, vídeos e música"
+            name: "midia"
+            widget: "object"
+            fields:
+              - {label: "Foto de abertura", name: "foto_abertura", widget: "image"}
+              - {label: "Foto da biografia", name: "foto_biografia", widget: "image"}
+              - {label: "Foto do Press Kit", name: "foto_presskit", widget: "image"}
+              - {label: "Vídeo de fundo", name: "video_fundo", widget: "file"}
+              - {label: "Vídeo de destaque", name: "video_youtube", widget: "file"}
+              - {label: "Música do player", name: "musica", widget: "file"}
+              - {label: "Galeria", name: "galeria", widget: "list", field: {label: "Foto", name: "foto", widget: "image"}}

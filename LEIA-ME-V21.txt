@@ -1,0 +1,22 @@
+BALADA FORROZEIRA V21 — PAINEL DE EDIÇÃO (ETAPA 1)
+=====================================================
+A V20 foi preservada: layout, imagens, vídeos, animações e músicas.
+
+NOVIDADES:
+- /admin/ painel de edição em português, responsivo
+- Agenda, biografia, galeria, fotos/vídeos (caminhos), plataformas e links
+- Exportação de conteudo.json para revisão
+- Correção de dado antigo que apontava para MP3 removido
+- Referência ao repositório existente no arquivo config.yml
+
+IMPORTANTE: ESTA É UMA ETAPA DE DESENVOLVIMENTO, NÃO UM PAINEL PRONTO PARA USO PÚBLICO.
+- Ainda NÃO há login nem autorização; NÃO publique /admin/ como painel privado.
+- O botão 'Baixar conteúdo atualizado' exporta um arquivo JSON; NÃO grava no GitHub.
+- Para ver alterações no site, substitua conteudo.json no projeto e publique novamente.
+- Troca de fotos/vídeos requer adicionar os respectivos arquivos em assets.
+- A playlist da V20 continua fixa no HTML; o painel apenas mostra as faixas.
+- /admin/ precisa ser servido por HTTP(S), não por file://, para carregar JSON.
+- A integração com autenticação, gravação segura e deploy virá na etapa 2.
+- admin/config.yml é legado Decap e não é usado pelo novo painel nesta etapa.
+
+O pacote é para testes locais e continuação do desenvolvimento.
