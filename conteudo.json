@@ -11,7 +11,15 @@
       "Com a energia contagiante dos ritmos nordestinos, presença de palco e muita vontade de fazer a festa acontecer, a Balada Forrozeira segue escrevendo sua história, valorizando suas raízes e olhando para o futuro."
     ]
   },
-  "agenda": [],
+  "agenda": [
+    {
+      "data": "2026-11-20",
+      "cidade": "Itamira",
+      "estado": "BA",
+      "evento": "Dia dos Padi",
+      "local": "Praço dos Fundo"
+    }
+  ],
   "plataformas": [
     {
       "nome": "Balada Forrozeira",
