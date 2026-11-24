@@ -58,6 +58,11 @@ function verifyPassword(password){
 function sameOrigin(req){try{const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return !!origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}catch{return false}}
 function validUrl(v){return typeof v==='string'&&(!v||/^https:\/\//i.test(v))&&v.length<2000}
 function validate(d){if(!d||typeof d!=='object'||Array.isArray(d))throw Error('JSON inválido');const fields=['biografia','agenda','plataformas','links','midia'];if(Object.keys(d).some(k=>!fields.includes(k)))throw Error('Campo não permitido');if(!d.biografia||!Array.isArray(d.agenda)||!Array.isArray(d.plataformas)||!d.links||!d.midia)throw Error('Estrutura incompleta');if(d.agenda.length>100||d.plataformas.length>30||d.midia.galeria?.length>100)throw Error('Quantidade acima do limite');
+ if(!Array.isArray(d.midia.playlist)||d.midia.playlist.length!==2)throw Error('A playlist deve conter exatamente duas músicas');
+ for(const x of d.midia.playlist){
+  if(!x||typeof x.titulo!=='string'||!x.titulo.trim()||x.titulo.length>150)throw Error('Título da música inválido');
+  if(typeof x.arquivo!=='string'||x.arquivo.length>2000||!(/^assets\/[a-zA-Z0-9_.-]+\.mp3$/i.test(x.arquivo)||(/^https:\/\//i.test(x.arquivo)&&/\.mp3$/i.test(new URL(x.arquivo).pathname))))throw Error('Informe um arquivo MP3 ou link HTTPS direto para MP3');
+ }
  if(d.midia.galeria!=null){
   if(!Array.isArray(d.midia.galeria))throw Error('Galeria inválida');
   let videos=0;
