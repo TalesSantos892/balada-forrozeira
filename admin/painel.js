@@ -56,7 +56,7 @@ function render(){
  }else if(active==='links'){
  h='<h2>Links oficiais</h2>'+[['instagram','Instagram'],['tiktok','TikTok'],['youtube','YouTube'],['suamusica','Sua Música'],['whatsapp','WhatsApp'],['presskit','Press Kit']].map(([key,label])=>field(label,data.links[key],`links.${key}`,'url')).join('');
  }else if(active==='playlist'){
- h='<h2>Playlist — duas faixas</h2><p class="help">Edite cada faixa separadamente. Informe um caminho MP3 em assets ou um link HTTPS direto para o MP3. Não é possível adicionar uma terceira faixa.</p>'+data.midia.playlist.slice(0,2).map((x,i)=>card(`Faixa ${i+1}`,field('Título',x.titulo,`midia.playlist.${i}.titulo`)+field('Arquivo MP3 ou link direto',x.arquivo,`midia.playlist.${i}.arquivo`))).join('');
+ h='<h2>Playlist — duas faixas</h2><p class="help">Edite cada faixa separadamente. Informe um caminho MP3 em assets ou um link HTTPS direto para o MP3. Não é possível adicionar uma terceira faixa.</p>'+data.midia.playlist.slice(0,2).map((x,i)=>card(`Faixa ${i+1}`,field('Título',x.titulo,`midia.playlist.${i}.titulo`)+field('Arquivo MP3 ou link direto',x.arquivo,`midia.playlist.${i}.arquivo`)+`<label class="field"><span>Selecionar MP3 (até 3 MB)</span><input type="file" accept="audio/mpeg,.mp3" data-audio-upload="${i}"></label>`)).join('');
  }
  $('#editor').innerHTML=h;
 }
@@ -104,6 +104,22 @@ async function optimizeImage(file){
 }
 document.addEventListener('change',async e=>{
  const input=e.target;
+ if(input.matches('[data-audio-upload]')){
+  if(!authenticated)return;
+  const file=input.files?.[0],idx=Number(input.dataset.audioUpload);
+  if(!file||![0,1].includes(idx))return;
+  if(!/\.mp3$/i.test(file.name)||file.size>3*1024*1024){$('#notice').textContent='Selecione um MP3 de até 3 MB.';return}
+  const save=$('#save');save.disabled=true;input.disabled=true;
+  try{
+   $('#notice').textContent='Enviando música…';
+   const content=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(Error('Falha na leitura'));reader.readAsDataURL(file)});
+   const result=await api('/api/upload-audio',{content});
+   data.midia.playlist[idx].arquivo=result.path;
+   render();$('#notice').textContent='MP3 enviado. Clique em Salvar e publicar para substituir a faixa.';
+  }catch(error){$('#notice').textContent='Falha no envio: '+error.message}
+  finally{save.disabled=false;input.disabled=false}
+  return;
+ }
  if(input.matches('[data-image-upload]')){
   const file=input.files?.[0];if(!file)return;
   try{const path=await optimizeImage(file);setAt(input.dataset.imageUpload,path);render();$('#notice').textContent='Imagem convertida para WebP e enviada ao GitHub. Clique em Salvar e publicar para atualizar a referência.';}
