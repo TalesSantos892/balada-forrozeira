@@ -338,6 +338,14 @@
 .bf-sponsors-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(18px,4vw,52px);max-width:900px;margin:auto;align-items:center;justify-items:center}
 .bf-sponsors-grid img{display:block;width:100%;height:clamp(90px,13vw,150px);max-width:190px;object-fit:contain}
 @media(max-width:600px){.bf-sponsors-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 30px;max-width:420px}.bf-sponsors-grid img{height:110px;max-width:155px}}
+
+#agenda .show{grid-template-columns:140px minmax(0,1.4fr) minmax(0,1fr) 95px;gap:24px}
+#agenda .show-date{flex-direction:column;align-items:flex-start;gap:4px;color:var(--yellow)}
+#agenda .show-date strong{font-size:clamp(52px,6vw,76px)}
+#agenda .show-date small{font-size:18px;color:var(--yellow);white-space:nowrap}
+#agenda .show-city{font:800 clamp(24px,3vw,38px)/1.05 'Barlow Condensed',sans-serif;color:var(--white);grid-column:auto}
+@media(max-width:900px){#agenda .show{grid-template-columns:110px minmax(0,1fr) minmax(0,1fr)}}
+@media(max-width:700px){#agenda .show{grid-template-columns:90px minmax(0,1fr)!important;gap:12px!important}#agenda .show-date{grid-row:span 2}#agenda .show-city{grid-column:2;font-size:30px}#agenda .show-date small{font-size:15px}#agenda .show h3{font-size:13px}#agenda .show p{font-size:11px}}
 </style><link rel="stylesheet" href="mobile-v26.css"></head><body>
 <header class="site-header"><div class="wrap header-inner"><a href="#inicio" aria-label="Balada Forrozeira, início"><img class="small-logo" src="assets/logo.png" alt="BF Balada Forrozeira"></a><button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button><nav class="nav" id="nav"><a href="#inicio">Início</a><a href="#biografia">Biografia</a><a href="#agenda">Agenda</a><a href="#musicas">Músicas</a><a href="#videos">Vídeos</a><a href="#galeria">Galeria</a><a href="#redes">Redes sociais</a><a class="nav-cta" href="#contratacoes">Contratações</a></nav></div></header>
 <main><section class="hero" id="inicio"><div class="wrap hero-inner"><div class="hero-accent" aria-hidden="true"></div><div class="hero-copy"><div class="micro">Direto da Bahia</div><img class="hero-logo" src="assets/logo-sem-margens.png" alt="Logotipo oficial Balada Forrozeira"><p class="hero-sub">A energia do palco, o swing da Bahia e aquele forró que não deixa ninguém parado.</p><div class="actions"><a class="button primary" href="#agenda">Agenda de shows</a><a class="button outline" href="#contratacoes">Contratações</a></div></div><img class="hero-person" src="assets/murilo-abertura.png" alt="Murilo Tosta, vocalista da Balada Forrozeira"></div></section>
