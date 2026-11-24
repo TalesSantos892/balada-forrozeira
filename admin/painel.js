@@ -7,7 +7,7 @@ const tabs=[
  ['plataformas','Nossa Música','Organize os cartões das plataformas de música.'],
  ['destaque','Vídeo do YouTube','Escolha a miniatura de um link do YouTube ou um vídeo MP4 otimizado.'],
  ['links','Redes e Press Kit','Atualize apenas os links oficiais.'],
- ['playlist','Playlist','Confira os arquivos das duas músicas da V20.']
+ ['playlist','Playlist','Substitua o título e o endereço de cada uma das duas músicas.']
 ];
 let data,original,active='agenda',sha=null,authenticated=false;
 const $=s=>document.querySelector(s);
@@ -56,7 +56,7 @@ function render(){
  }else if(active==='links'){
  h='<h2>Links oficiais</h2>'+[['instagram','Instagram'],['tiktok','TikTok'],['youtube','YouTube'],['suamusica','Sua Música'],['whatsapp','WhatsApp'],['presskit','Press Kit']].map(([key,label])=>field(label,data.links[key],`links.${key}`,'url')).join('');
  }else if(active==='playlist'){
- h='<h2>Músicas da V20</h2><p class="help">A playlist atual permanece intacta e toca as duas faixas em sequência. A edição das músicas será habilitada quando o player estiver integrado ao salvamento seguro.</p>'+data.midia.playlist.map((x,i)=>card(`Faixa ${i+1}`,`<p>${esc(x.titulo)}</p><p class="help">${esc(x.arquivo)}</p>`)).join('');
+ h='<h2>Playlist — duas faixas</h2><p class="help">Edite cada faixa separadamente. Informe um caminho MP3 em assets ou um link HTTPS direto para o MP3. Não é possível adicionar uma terceira faixa.</p>'+data.midia.playlist.slice(0,2).map((x,i)=>card(`Faixa ${i+1}`,field('Título',x.titulo,`midia.playlist.${i}.titulo`)+field('Arquivo MP3 ou link direto',x.arquivo,`midia.playlist.${i}.arquivo`))).join('');
  }
  $('#editor').innerHTML=h;
 }
