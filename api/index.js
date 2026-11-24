@@ -58,6 +58,11 @@ function verifyPassword(password){
 function sameOrigin(req){try{const origin=req.headers.origin;const host=req.headers['x-forwarded-host']||req.headers.host;return !!origin&&new URL(origin).host===host&&new URL(origin).protocol==='https:'}catch{return false}}
 function validUrl(v){return typeof v==='string'&&(!v||/^https:\/\//i.test(v))&&v.length<2000}
 function validate(d){if(!d||typeof d!=='object'||Array.isArray(d))throw Error('JSON inválido');const fields=['biografia','agenda','plataformas','links','midia'];if(Object.keys(d).some(k=>!fields.includes(k)))throw Error('Campo não permitido');if(!d.biografia||!Array.isArray(d.agenda)||!Array.isArray(d.plataformas)||!d.links||!d.midia)throw Error('Estrutura incompleta');if(d.agenda.length>100||d.plataformas.length>30||d.midia.galeria?.length>100)throw Error('Quantidade acima do limite');
+ if(!Array.isArray(d.midia.playlist)||d.midia.playlist.length!==2)throw Error('A playlist deve conter exatamente duas músicas');
+ for(const x of d.midia.playlist){
+  if(!x||typeof x.titulo!=='string'||!x.titulo.trim()||x.titulo.length>150)throw Error('Título da música inválido');
+  if(typeof x.arquivo!=='string'||x.arquivo.length>2000||!(/^assets\/[a-zA-Z0-9_.-]+\.mp3$/i.test(x.arquivo)||(/^https:\/\//i.test(x.arquivo)&&/\.mp3$/i.test(new URL(x.arquivo).pathname))))throw Error('Informe um arquivo MP3 ou link HTTPS direto para MP3');
+ }
  if(d.midia.galeria!=null){
   if(!Array.isArray(d.midia.galeria))throw Error('Galeria inválida');
   let videos=0;
@@ -98,6 +103,17 @@ if(route==='save'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
  const d=validate(req.body?.conteudo),sha=req.body?.sha;if(!/^[a-f0-9]{40}$/.test(sha||''))throw Error('Versão de conteúdo inválida');
  const result=await gh(`/repos/${repo}/contents/conteudo.json`,githubToken,'PUT',{message:'Atualizar conteúdo pelo painel Balada Forrozeira',content:Buffer.from(JSON.stringify(d,null,2)).toString('base64'),sha,branch});return send(res,200,{ok:true,sha:result.content.sha});
+}
+if(route==='upload-audio'&&req.method==='POST'){
+ if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
+ const {content}=req.body||{};
+ if(typeof content!=='string'||content.length>4194304||!/^[A-Za-z0-9+/]+={0,2}$/.test(content))throw Error('MP3 inválido ou acima de 3 MB');
+ const bytes=Buffer.from(content,'base64');
+ if(bytes.length<4||bytes.length>3*1024*1024||!(bytes.toString('ascii',0,3)==='ID3'||(bytes[0]===255&&(bytes[1]&224)===224)))throw Error('Selecione um MP3 válido de até 3 MB');
+ const name='bf-audio-'+crypto.randomUUID()+'.mp3';
+ const path='assets/'+name;
+ await gh(`/repos/${repo}/contents/${path}`,githubToken,'PUT',{message:'Adicionar faixa MP3 '+name,content,branch});
+ return send(res,200,{ok:true,path});
 }
 if(route==='upload-video'&&req.method==='POST'){
  if(!sameOrigin(req))return send(res,403,{erro:'Origem inválida'});
