@@ -12,7 +12,20 @@
     ]
   },
   "agenda": [
-    {"data":"2026-11-29","cidade":"Governador Mangabeira","estado":"BA","evento":"","local":""}
+    {
+      "data": "2026-11-29",
+      "cidade": "Governador Mangabeira",
+      "estado": "BA",
+      "evento": "",
+      "local": ""
+    },
+    {
+      "data": "2026-12-19",
+      "cidade": "DISTRITO DE SERRANA",
+      "estado": "BA",
+      "evento": "",
+      "local": ""
+    }
   ],
   "plataformas": [
     {
