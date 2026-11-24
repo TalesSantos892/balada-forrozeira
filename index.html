@@ -427,7 +427,21 @@
  audio.addEventListener('pause',render);
  audio.addEventListener('error',()=>{status.textContent='Não foi possível carregar o MP3'});
  // Os navegadores podem impedir autoplay com som: não interferir na experiência.
- function tryAutoplay(){audio.play().then(render).catch(render)}
+ async function tryAutoplay(){
+  try{
+   const response=await fetch('conteudo.json',{cache:'no-store'});
+   if(response.ok){
+    const tracks=(await response.json()).midia?.playlist;
+    if(Array.isArray(tracks)&&tracks.length===2&&tracks.every(x=>x&&typeof x.titulo==='string'&&x.titulo.trim()&&typeof x.arquivo==='string'&&(/^assets\/[a-zA-Z0-9_.-]+\.mp3$/i.test(x.arquivo)||(/^https:\/\//i.test(x.arquivo)&&/\.mp3$/i.test(new URL(x.arquivo).pathname))))){
+     playlist.splice(0,2,...tracks.map(x=>({title:x.titulo,src:x.arquivo})));
+     const wasPlaying=!audio.paused;
+     if(audio.getAttribute('src')!==playlist[current].src)selectTrack(current);
+     else trackLabel.textContent=playlist[current].title;
+    }
+   }
+  }catch(e){/* Mantém as duas faixas originais como fallback. */}
+  audio.play().then(render).catch(render);
+ }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tryAutoplay,{once:true});else tryAutoplay();
  render();
 })();
